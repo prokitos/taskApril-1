@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/joho/godotenv"
+	_ "github.com/lib/pq"
 	"github.com/pressly/goose/v3"
 	log "github.com/sirupsen/logrus"
 )

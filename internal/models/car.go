@@ -2,10 +2,10 @@ package models
 
 // структура таблицы машин
 type Car struct {
-	Id     string
-	RegNum string
-	Mark   string
-	Model  string
-	Year   string
-	Owner  People
+	Id     string `json:"id"`
+	RegNum string `json:"regNum"`
+	Mark   string `json:"mark"`
+	Model  string `json:"model"`
+	Year   string `json:"year"`
+	Owner  People `json:"owner"`
 }
