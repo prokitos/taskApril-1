@@ -12,9 +12,10 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func ConnectToDb(path string) *sql.DB {
+var envConnvertion string = "internal/config/postgres.env"
+var migrationRoute string = "internal/database/migrations"
 
-	log.Info("connecting to the database")
+func ConnectToDb(path string) *sql.DB {
 
 	godotenv.Load(path)
 
@@ -29,6 +30,7 @@ func ConnectToDb(path string) *sql.DB {
 	if err != nil {
 		log.Error("database connection error")
 		log.Debug("there is not connection with database")
+		CheckError(err)
 	}
 
 	db.Begin()
@@ -41,14 +43,22 @@ func MigrateStart() {
 	duration := time.Second * 5
 	time.Sleep(duration)
 
-	db := ConnectToDb("internal/config/postgres.env")
+	db := ConnectToDb(envConnvertion)
 
 	if err := goose.SetDialect("postgres"); err != nil {
-		panic(err)
+		log.Debug("dont get migration dialect")
+		CheckError(err)
 	}
 
-	if err := goose.Up(db, "internal/database/migrations"); err != nil {
+	if err := goose.Up(db, migrationRoute); err != nil {
 		log.Error("migration connection error")
+		log.Debug("there is not connection with database in migration")
+		CheckError(err)
+	}
+}
+
+func CheckError(err error) {
+	if err != nil {
 		panic(err)
 	}
 }

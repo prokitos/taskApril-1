@@ -9,3 +9,7 @@ type Car struct {
 	Year   string `json:"year"`
 	Owner  People `json:"owner"`
 }
+
+type CarNumber struct {
+	RegNum []string `json:"regNum"`
+}

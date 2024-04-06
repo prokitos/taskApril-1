@@ -18,53 +18,57 @@ func RestUpdateData(w http.ResponseWriter, curModel *models.Car) {
 // Удаление записи по айди
 func RestDeleteData(w http.ResponseWriter, id string) {
 
-	// сначала надо получить айди владельца машины
-	// потом удалить владельца машины
-	// и уже потом удалить машину
-
-	query := QueryCarDelete(id)
 	connection := postgres.ConnectToDb(envConnvertion)
+	defer connection.Close()
+
+	// получаем айдишник владельца машины
+	var query string = "SELECT owner from car where id = " + id
+	temp := postgres.ExecuteReturnToDB(connection, w, query)
+
+	// каскадно удаляем владельца и машину
+	query = "delete from people where id = " + temp
 	postgres.ExecuteToDB(connection, w, query)
+
 }
 
 // Показать записи
 func RestShowData(w http.ResponseWriter, curModel *models.Car, offset string, limit string, sort string) {
 
-	// здесь передача данных на сервер
-	var query string = "SELECT car.id,regnum,mark,model,year,people.id,name,surname,patronymic FROM car left join people on car.owner = people.id where car.id = 2"
 	connection := postgres.ConnectToDb(envConnvertion)
+	defer connection.Close()
+
+	// здесь передача данных на сервер
+	var query string = ConStringShowSpec(curModel, limit, offset)
+	//"SELECT car.id,regnum,mark,model,year,people.id,name,surname,patronymic FROM car left join people on car.owner = people.id where car.id = 2"
 	postgres.ShowFromDB(connection, w, query)
 
 }
 
 // Создать новую запись
-func RestCreateData(w http.ResponseWriter, curModel *models.Car) {
+func RestCreateData(w http.ResponseWriter, regNums *models.CarNumber) {
+
+	connection := postgres.ConnectToDb(envConnvertion)
+	defer connection.Close()
 
 	// здесь нужно обогащать данные
 	var curOwner models.People
-	curOwner.Name = "Andrew"
+	curOwner.Name = "Nikita"
 	curOwner.Surname = "Dyabov"
 	curOwner.Patronymic = "Ivanovich"
 
-	curModel.Mark = "Lada"
-	curModel.Model = "Vesta"
-	curModel.Year = "2002"
-	curModel.RegNum = "x123xx150"
-	curModel.Owner = curOwner
+	var curCar models.Car
+	curCar.Mark = "Lada"
+	curCar.Model = "Verdana"
+	curCar.Year = "2000"
+	curCar.RegNum = "x123xx150"
+	curCar.Owner = curOwner
 
-	var query string = "INSERT INTO people (name,surname,patronymic) VALUES ('thomas','Dyablow','ichvilnicht') RETURNING id"
-	connection := postgres.ConnectToDb(envConnvertion)
-	curOwner.Id = postgres.ExecuteReturnToDB(connection, w, query)
+	// var query string = "INSERT INTO people (name,surname,patronymic) VALUES ('Andrew','Dyablow','ichvilnicht') RETURNING id"
+	// connection := postgres.ConnectToDb(envConnvertion)
+	// curOwner.Id = postgres.ExecuteReturnToDB(connection, w, query)
 
-	query = "INSERT INTO car (regnum,mark,model,year,owner) VALUES ('xx100xx','lada','vesta','2000','6') RETURNING id"
-	connection = postgres.ConnectToDb(envConnvertion)
-	curOwner.Id = postgres.ExecuteReturnToDB(connection, w, query)
-
-	// здесь передача данных на сервер
-	// сначала добавляем владельца
-	// потом добавляем машину
-
-	// RETURNING id;
-	// нельзя добавлять insertom в две таблицы!!!
+	// query = "INSERT INTO car (regnum,mark,model,year,owner) VALUES ('xx100xx','mercedes','s666','2010','11') RETURNING id"
+	// connection = postgres.ConnectToDb(envConnvertion)
+	// curOwner.Id = postgres.ExecuteReturnToDB(connection, w, query)
 
 }

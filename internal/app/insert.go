@@ -2,9 +2,9 @@ package app
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"module/internal/models"
-	"module/internal/services"
 	"net/http"
 )
 
@@ -12,8 +12,14 @@ func insertGetRequest(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
 
 	reqBody, _ := io.ReadAll(r.Body)
-	var curCar models.Car
-	json.Unmarshal(reqBody, &curCar)
+	var nomera models.CarNumber
+	json.Unmarshal(reqBody, &nomera)
 
-	services.RestCreateData(w, &curCar)
+	for i := 0; i < 40; i++ {
+		go func() {
+			fmt.Println(i)
+		}()
+	}
+
+	//services.RestCreateData(w, &nomera)
 }

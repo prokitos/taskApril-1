@@ -16,7 +16,7 @@ func deleteRequest(w http.ResponseWriter, r *http.Request) {
 	id := r.FormValue("id")
 	if _, err := strconv.Atoi(id); err != nil {
 		log.Debug("id couldn't convert to a number: " + id)
-		models.BadResponseSend(w, "Bad request", 400)
+		models.BadClientResponse(w)
 		return
 	}
 

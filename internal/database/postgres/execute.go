@@ -2,16 +2,17 @@ package postgres
 
 import (
 	"database/sql"
-	"encoding/json"
+	"module/internal/models"
 	"net/http"
 )
 
 // вызов операции над таблицей
 func ExecuteToDB(db *sql.DB, w http.ResponseWriter, conn string) {
-	defer db.Close()
 
-	result, _ := db.Exec(conn)
-	json.NewEncoder(w).Encode(result)
+	_, err := db.Exec(conn)
+	CheckError(err)
+
+	models.GoodResponse(w)
 
 }
 

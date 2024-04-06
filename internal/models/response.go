@@ -8,14 +8,14 @@ import (
 // вывод хорошего ответа
 type GoodBasicResponse struct {
 	Description string `json:"description"        example:"description"`
-	Code        int    `json:"code"           example:"status"`
+	Code        int    `json:"code"               example:"status"`
 }
 
 // вывод хорошего ответа с машиной
 type GoodAdvancedResponse struct {
 	Description string `json:"description"        example:"description"`
-	Code        int    `json:"code"           example:"status"`
-	Cars        []Car  `json:"cars"           example:"...."`
+	Code        int    `json:"code"               example:"status"`
+	Cars        []Car  `json:"cars"               example:"...."`
 }
 
 // вывод плохого ответа
@@ -24,18 +24,39 @@ type ErrorResponse struct {
 	Code        int    `json:"code"`
 }
 
-func BadResponseSend(w http.ResponseWriter, message string, code int) {
+// ошибка на сервере
+func BadServerResponse(w http.ResponseWriter) {
 	badResponse := ErrorResponse{
-		Description: message,
-		Code:        code,
+		Description: "Bad request",
+		Code:        400,
 	}
 	json.NewEncoder(w).Encode(badResponse)
 }
 
-func GoodResponseSend(w http.ResponseWriter, message string, affectedRow int) {
-	errResp := GoodBasicResponse{
-		Description: message,
+// обишка на клиенте
+func BadClientResponse(w http.ResponseWriter) {
+	badResponse := ErrorResponse{
+		Description: "Internal server error",
+		Code:        500,
+	}
+	json.NewEncoder(w).Encode(badResponse)
+}
+
+// вывод что все прошло хорошо
+func GoodResponse(w http.ResponseWriter) {
+	goodResp := GoodBasicResponse{
+		Description: "Ok",
 		Code:        200,
 	}
-	json.NewEncoder(w).Encode(errResp)
+	json.NewEncoder(w).Encode(goodResp)
+}
+
+// вывод что все прошло хорошо + показать машину
+func GoodShowResponse(w http.ResponseWriter, resultCars *[]Car) {
+	goodResp := GoodAdvancedResponse{
+		Description: "Ok",
+		Code:        200,
+		Cars:        *resultCars,
+	}
+	json.NewEncoder(w).Encode(goodResp)
 }
