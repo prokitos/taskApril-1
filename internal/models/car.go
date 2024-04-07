@@ -2,14 +2,14 @@ package models
 
 // структура таблицы машин
 type Car struct {
-	Id     string `json:"id"`
-	RegNum string `json:"regNum"`
-	Mark   string `json:"mark"`
-	Model  string `json:"model"`
-	Year   string `json:"year"`
+	Id     string `json:"id" example:"12"`
+	RegNum string `json:"regNum" example:""`
+	Mark   string `json:"mark" example:""`
+	Model  string `json:"model" example:"tesla"`
+	Year   string `json:"year" example:""`
 	Owner  People `json:"owner"`
 }
 
 type CarNumber struct {
-	RegNum []string `json:"regNum"`
+	RegNum []string `json:"regNum" example:"x150xx150,x24xx134"`
 }

@@ -25,38 +25,38 @@ type ErrorResponse struct {
 }
 
 // ошибка на сервере
-func BadServerResponse(w http.ResponseWriter) {
+func BadServerResponse(w *http.ResponseWriter) {
 	badResponse := ErrorResponse{
 		Description: "Bad request",
 		Code:        400,
 	}
-	json.NewEncoder(w).Encode(badResponse)
+	json.NewEncoder(*w).Encode(badResponse)
 }
 
 // обишка на клиенте
-func BadClientResponse(w http.ResponseWriter) {
+func BadClientResponse(w *http.ResponseWriter) {
 	badResponse := ErrorResponse{
 		Description: "Internal server error",
 		Code:        500,
 	}
-	json.NewEncoder(w).Encode(badResponse)
+	json.NewEncoder(*w).Encode(badResponse)
 }
 
 // вывод что все прошло хорошо
-func GoodResponse(w http.ResponseWriter) {
+func GoodResponse(w *http.ResponseWriter) {
 	goodResp := GoodBasicResponse{
 		Description: "Ok",
 		Code:        200,
 	}
-	json.NewEncoder(w).Encode(goodResp)
+	json.NewEncoder(*w).Encode(goodResp)
 }
 
 // вывод что все прошло хорошо + показать машину
-func GoodShowResponse(w http.ResponseWriter, resultCars *[]Car) {
+func GoodShowResponse(w *http.ResponseWriter, resultCars *[]Car) {
 	goodResp := GoodAdvancedResponse{
 		Description: "Ok",
 		Code:        200,
 		Cars:        *resultCars,
 	}
-	json.NewEncoder(w).Encode(goodResp)
+	json.NewEncoder(*w).Encode(goodResp)
 }

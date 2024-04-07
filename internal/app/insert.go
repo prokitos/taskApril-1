@@ -2,12 +2,21 @@ package app
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"module/internal/models"
+	"module/internal/services"
 	"net/http"
 )
 
+// Cars godoc
+// @Summary Insert person and car
+// @Description Insert reg nums for car
+// @Tags cars
+// @Accept  json
+// @Produce  json
+// @Param regNum body models.CarNumber true "Add reg nums"
+// @Success 200 "successful operation"
+// @Router /insert [post]
 func insertGetRequest(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
 
@@ -15,11 +24,5 @@ func insertGetRequest(w http.ResponseWriter, r *http.Request) {
 	var nomera models.CarNumber
 	json.Unmarshal(reqBody, &nomera)
 
-	for i := 0; i < 40; i++ {
-		go func() {
-			fmt.Println(i)
-		}()
-	}
-
-	//services.RestCreateData(w, &nomera)
+	go services.RestCreateData(&w, &nomera)
 }

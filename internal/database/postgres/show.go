@@ -10,7 +10,7 @@ import (
 )
 
 // показать таблицу
-func ShowFromDB(db *sql.DB, w http.ResponseWriter, stroka string) {
+func ShowFromDB(db *sql.DB, w *http.ResponseWriter, stroka string) {
 
 	rows, _ := db.Query(stroka)
 	defer rows.Close()
@@ -31,6 +31,6 @@ func ShowFromDB(db *sql.DB, w http.ResponseWriter, stroka string) {
 		cars = append(cars, car)
 	}
 
-	json.NewEncoder(w).Encode(cars)
+	json.NewEncoder(*w).Encode(cars)
 
 }

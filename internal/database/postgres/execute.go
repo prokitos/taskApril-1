@@ -7,7 +7,7 @@ import (
 )
 
 // вызов операции над таблицей
-func ExecuteToDB(db *sql.DB, w http.ResponseWriter, conn string) {
+func ExecuteToDB(db *sql.DB, w *http.ResponseWriter, conn string) {
 
 	_, err := db.Exec(conn)
 	CheckError(err)
@@ -16,7 +16,7 @@ func ExecuteToDB(db *sql.DB, w http.ResponseWriter, conn string) {
 
 }
 
-func ExecuteReturnToDB(db *sql.DB, w http.ResponseWriter, conn string) string {
+func ExecuteReturnToDB(db *sql.DB, w *http.ResponseWriter, conn string) string {
 
 	lastInsertId := "0"
 	db.QueryRow(conn).Scan(&lastInsertId)

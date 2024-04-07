@@ -3,6 +3,7 @@ package postgres
 import (
 	"database/sql"
 	"fmt"
+	"net/http"
 	"os"
 	"time"
 
@@ -15,8 +16,37 @@ import (
 var envConnvertion string = "internal/config/postgres.env"
 var migrationRoute string = "internal/database/migrations"
 
-func ConnectToDb(path string) *sql.DB {
+func ConnectToDb(w *http.ResponseWriter) *sql.DB {
 
+	godotenv.Load(envConnvertion)
+
+	envUser := os.Getenv("User")
+	envPass := os.Getenv("Pass")
+	envHost := os.Getenv("Host")
+	envPort := os.Getenv("Port")
+	envName := os.Getenv("Name")
+
+	connStr := fmt.Sprintf("postgresql://%s:%s@%s:%s/%s?sslmode=disable", envUser, envPass, envHost, envPort, envName)
+	db, err := sql.Open("postgres", connStr)
+	if err != nil {
+		log.Error("database connection error")
+		log.Debug("there is not connection with database")
+		CheckError(err)
+	}
+
+	db.Begin()
+
+	return db
+}
+
+func GetExternalRoutes(address *string, route *string) {
+	godotenv.Load(envConnvertion)
+
+	*address = os.Getenv("ExtAddress")
+	*route = os.Getenv("ExtRoute")
+}
+
+func MigratonDbConnect(path string) *sql.DB {
 	godotenv.Load(path)
 
 	envUser := os.Getenv("User")
@@ -43,7 +73,7 @@ func MigrateStart() {
 	duration := time.Second * 5
 	time.Sleep(duration)
 
-	db := ConnectToDb(envConnvertion)
+	db := MigratonDbConnect(envConnvertion)
 
 	if err := goose.SetDialect("postgres"); err != nil {
 		log.Debug("dont get migration dialect")

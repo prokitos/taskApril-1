@@ -5,6 +5,10 @@ import (
 	"net/http"
 	"time"
 
+	_ "module/docs"
+
+	httpSwagger "github.com/swaggo/http-swagger"
+
 	"github.com/gorilla/mux"
 )
 
@@ -28,7 +32,7 @@ func MainServer() {
 func routers() *mux.Router {
 	router := mux.NewRouter()
 
-	// потом можно поменять все пути на cars, если будет несколько таблиц
+	router.PathPrefix("/swagger").Handler(httpSwagger.WrapHandler)
 	router.HandleFunc("/delete", deleteRequest).Methods(http.MethodDelete)
 	router.HandleFunc("/insert", insertGetRequest).Methods(http.MethodPost)
 	router.HandleFunc("/update", updateGetRequest).Methods(http.MethodPut)

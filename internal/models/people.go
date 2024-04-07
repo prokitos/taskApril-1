@@ -2,8 +2,8 @@ package models
 
 // структура таблицы владельцев
 type People struct {
-	Id         string `json:"id"`
-	Name       string `json:"name"`
-	Surname    string `json:"surname"`
-	Patronymic string `json:"patronymic"`
+	Id         string `json:"id" example:""`
+	Name       string `json:"name" example:"jamson"`
+	Surname    string `json:"surname" example:""`
+	Patronymic string `json:"patronymic" example:""`
 }
