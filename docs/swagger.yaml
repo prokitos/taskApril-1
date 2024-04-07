@@ -59,7 +59,7 @@ definitions:
     properties:
       regNum:
         example:
-        - x150xx150
+        - x15xx150
         - x24xx134
         items:
           type: string

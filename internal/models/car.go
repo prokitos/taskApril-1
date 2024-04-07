@@ -11,5 +11,5 @@ type Car struct {
 }
 
 type CarNumber struct {
-	RegNum []string `json:"regNum" example:"x150xx150,x24xx134"`
+	RegNum []string `json:"regNum" example:"x15xx150,x24xx134"`
 }

@@ -287,7 +287,7 @@ const docTemplate = `{
                         "type": "string"
                     },
                     "example": [
-                        "x150xx150",
+                        "x15xx150",
                         "x24xx134"
                     ]
                 }

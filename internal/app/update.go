@@ -1,9 +1,6 @@
 package app
 
 import (
-	"encoding/json"
-	"io"
-	"module/internal/models"
 	"module/internal/services"
 	"net/http"
 )
@@ -21,9 +18,7 @@ import (
 func updateGetRequest(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
 
-	reqBody, _ := io.ReadAll(r.Body)
-	var curCar models.Car
-	json.Unmarshal(reqBody, &curCar)
+	// здесь провекра доступа
 
-	services.RestUpdateData(&w, &curCar)
+	services.CarUpdate(&w, r)
 }

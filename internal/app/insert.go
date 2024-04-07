@@ -1,9 +1,6 @@
 package app
 
 import (
-	"encoding/json"
-	"io"
-	"module/internal/models"
 	"module/internal/services"
 	"net/http"
 )
@@ -20,9 +17,7 @@ import (
 func insertGetRequest(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
 
-	reqBody, _ := io.ReadAll(r.Body)
-	var nomera models.CarNumber
-	json.Unmarshal(reqBody, &nomera)
+	// здесь провекра доступа
 
-	go services.RestCreateData(&w, &nomera)
+	services.CarCreate(&w, r)
 }
