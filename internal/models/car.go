@@ -10,6 +10,7 @@ type Car struct {
 	Owner  People `json:"owner"`
 }
 
+// структура с массивом номеров
 type CarNumber struct {
 	RegNum []string `json:"regNum" example:"x15xx150,x24xx134"`
 }

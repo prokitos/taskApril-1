@@ -18,7 +18,19 @@ func CarUpdate(w *http.ResponseWriter, r *http.Request) {
 	var curCar models.Car
 	json.Unmarshal(reqBody, &curCar)
 
-	dao.UpdateData(w, &curCar)
+	// если пользователь не ввёл айди изменяемой записи, то ошибка
+	if _, err := strconv.Atoi(curCar.Id); err != nil {
+		log.Debug("don't correct id of updated car")
+		models.BadClientResponse400(w)
+		return
+	}
+
+	// возвращаем 200 если операции прошли хорошо
+	res := dao.UpdateData(w, &curCar)
+	if res {
+		models.GoodResponse(w)
+	}
+
 }
 
 // Удаление записи по айди
@@ -28,11 +40,16 @@ func CarDelete(w *http.ResponseWriter, r *http.Request) {
 	id := r.FormValue("id")
 	if _, err := strconv.Atoi(id); err != nil {
 		log.Debug("id couldn't convert to a number: " + id)
-		models.BadClientResponse(w)
+		models.BadClientResponse400(w)
 		return
 	}
 
-	dao.DeleteData(w, id)
+	// возвращаем 200 если операции прошли хорошо
+	res := dao.DeleteData(w, id)
+	if res {
+		models.GoodResponse(w)
+	}
+
 }
 
 // Показать записи
@@ -54,28 +71,38 @@ func CarShow(w *http.ResponseWriter, r *http.Request) {
 
 	// проверка что в offset,limit,id либо пустота либо числа.
 	if _, err := strconv.Atoi(offset); offset != "" && err != nil {
-		log.Error("the show request was not executed")
 		log.Debug("offset params couldn't convert to a number, offset = " + offset)
 
-		models.BadClientResponse(w)
+		models.BadClientResponse400(w)
 		return
 	}
 	if _, err := strconv.Atoi(limit); limit != "" && err != nil {
-		log.Error("the show request was not executed")
 		log.Debug("limit params couldn't convert to a number, limit = " + limit)
 
-		models.BadClientResponse(w)
+		models.BadClientResponse400(w)
 		return
 	}
 	if _, err := strconv.Atoi(curCar.Id); curCar.Id != "" && err != nil {
-		log.Error("the show request was not executed")
 		log.Debug("id params couldn't convert to a number, id = " + curCar.Id)
 
-		models.BadClientResponse(w)
+		models.BadClientResponse400(w)
 		return
 	}
 
-	dao.ShowData(w, &curCar, offset, limit, sorted)
+	if curCar.Id == "" && curCar.Mark == "" && curCar.Model == "" && curCar.RegNum == "" && curCar.Year == "" &&
+		curCar.Owner.Name == "" && curCar.Owner.Surname == "" && curCar.Owner.Patronymic == "" {
+		log.Debug("empty all field in request")
+
+		models.BadClientResponse400(w)
+		return
+	}
+
+	// возвращаем 200 и машины если операции прошли хорошо
+	cars, res := dao.ShowData(w, &curCar, offset, limit, sorted)
+	if res {
+		models.GoodShowResponse(w, cars)
+	}
+
 }
 
 // Создать новую запись
@@ -85,9 +112,33 @@ func CarCreate(w *http.ResponseWriter, r *http.Request) {
 	var nomera models.CarNumber
 	json.Unmarshal(reqBody, &nomera)
 
-	for _, i := range nomera.RegNum {
-		curCar := sendRequestToGet(i)
-		dao.CreateData(w, &curCar)
+	if len(nomera.RegNum) == 0 {
+		log.Debug("empty regNum in insert request")
+		models.BadClientResponse400(w)
+		return
 	}
 
+	// так как внешнее апи получает только один номер, то отправляем номера по одному
+	// в цикле каждый номер отправляем во внешнее апи, получаем carModel, и добавляем её в бд.
+	for _, i := range nomera.RegNum {
+		curCar := sendRequestToGet(i)
+
+		// ошибка если внешний сервер вернул пустые поля машины
+		if curCar.Mark == "" && curCar.Model == "" && curCar.Owner.Name == "" && curCar.Owner.Surname == "" {
+			log.Error("error in external server request")
+			log.Debug("external server return empty data")
+
+			models.BadServerResponse(w)
+			return
+		}
+
+		// выполнение каждоый операции, и проверка что они выполнены.
+		res := dao.CreateData(w, &curCar)
+		if !res {
+			return
+		}
+	}
+
+	//  возвращаем 200 если операции прошли хорошо
+	models.GoodResponse(w)
 }

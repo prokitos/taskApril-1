@@ -1,8 +1,6 @@
 package dao
 
 import (
-	"database/sql"
-	"encoding/json"
 	"module/internal/database"
 	"module/internal/models"
 	"net/http"
@@ -10,90 +8,132 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// Обновление записи
-func UpdateData(w *http.ResponseWriter, curModel *models.Car) {
-
-	connection := database.ConnectToDb(w)
-	defer connection.Close()
+// Обновление записи. возвращает false если неудачно
+func UpdateData(w *http.ResponseWriter, curModel *models.Car) bool {
 
 	if curModel.Id == "" {
-		return
+		return false
 	}
 
+	// сначала обновляем машину
 	query := conStringUpdateCar(curModel)
 	if query != "" {
-		executeToDB(connection, w, query)
+		err := executeToDB(w, query)
+		if !err {
+			return false
+		}
 	}
 
+	// потом обновляем владельца
 	query = conStringUpdatePeople(curModel)
 	if query != "" {
-		executeToDB(connection, w, query)
+		err := executeToDB(w, query)
+		if !err {
+			return false
+		}
 	}
 
+	// возвращаем true если всё прошло успешно
+	return true
 }
 
-// Удаление записи по айди
-func DeleteData(w *http.ResponseWriter, id string) {
-
-	connection := database.ConnectToDb(w)
-	defer connection.Close()
+// Удаление записи по айди. возвращает false если неудачно
+func DeleteData(w *http.ResponseWriter, id string) bool {
 
 	// получаем айдишник владельца машины
 	var query string = "SELECT owner from car where id = " + id
-	temp := executeReturnToDB(connection, w, query)
+	temp, err := executeReturnToDB(w, query)
+	if !err {
+		return false
+	}
 
 	// каскадно удаляем владельца и машину
 	query = "delete from people where id = " + temp
-	executeToDB(connection, w, query)
+	err = executeToDB(w, query)
+	if !err {
+		return false
+	}
 
+	// возвращаем true если всё прошло успешно
+	return true
 }
 
-// Показать записи
-func ShowData(w *http.ResponseWriter, curModel *models.Car, offset string, limit string, sort string) {
+// Показать записи. возвращает false если неудачно
+func ShowData(w *http.ResponseWriter, curModel *models.Car, offset string, limit string, sort string) (*[]models.Car, bool) {
 
-	connection := database.ConnectToDb(w)
-	defer connection.Close()
-
-	// здесь передача данных на сервер
+	// показать записи по разным параметрам
 	var query string = conStringShowSpec(curModel, limit, offset, sort)
-	//"SELECT car.id,regnum,mark,model,year,people.id,name,surname,patronymic FROM car left join people on car.owner = people.id where car.id = 2"
-	showFromDB(connection, w, query)
+	carMas, err := showFromDB(w, query)
+	if !err {
+		return carMas, false
+	}
 
+	// возвращаем true и машины если всё прошло успешно
+	return carMas, true
 }
 
-// Создать новую запись
-func CreateData(w *http.ResponseWriter, curCar *models.Car) {
+// Создать новую запись. возвращает false если неудачно
+func CreateData(w *http.ResponseWriter, curCar *models.Car) bool {
 
-	connection := database.ConnectToDb(w)
-	defer connection.Close()
+	var err bool
 
+	// добавляем сначала владельца, и получаем его айдишник
 	var query string = conStringInsertPeople(curCar)
-	curCar.Owner.Id = executeReturnToDB(connection, w, query)
+	curCar.Owner.Id, err = executeReturnToDB(w, query)
+	if !err {
+		return false
+	}
 
+	// добавляем машину, и указывает айдишник владельца
 	query = conStringInsertCar(curCar)
-	executeToDB(connection, w, query)
+	err = executeToDB(w, query)
+	if !err {
+		return false
+	}
 
+	// возвращаем true если всё прошло успешно
+	return true
 }
 
-// вызов операции над таблицей
-func executeToDB(db *sql.DB, w *http.ResponseWriter, conn string) {
+// просто выполнить запрос. вернуть false если неудачно
+func executeToDB(w *http.ResponseWriter, conn string) bool {
 
-	_, err := db.Exec(conn)
-	CheckError(err)
+	db := database.GetConnection()
 
-	models.GoodResponse(w)
+	res, err := db.Exec(conn)
+	models.CheckError(err)
 
+	affected, _ := res.RowsAffected()
+	if affected == 0 {
+		log.Debug("nothind to execute. 0 records")
+		models.BadClientResponse404(w)
+		return false
+	}
+
+	return true
 }
 
-func executeReturnToDB(db *sql.DB, w *http.ResponseWriter, conn string) string {
+// выполнить запрос, и вернуть айди записи, над которой был запрос. также вернуть false при неудаче
+func executeReturnToDB(w *http.ResponseWriter, conn string) (string, bool) {
+
+	db := database.GetConnection()
 
 	lastInsertId := "0"
 	db.QueryRow(conn).Scan(&lastInsertId)
-	return lastInsertId
+
+	if lastInsertId == "0" {
+		log.Debug("nothind to execute. 0 records")
+		models.BadClientResponse404(w)
+		return lastInsertId, false
+	}
+
+	return lastInsertId, true
 }
 
-// показать таблицу
-func showFromDB(db *sql.DB, w *http.ResponseWriter, stroka string) {
+// показать данные из таблицы. вернуть false если неудачно
+func showFromDB(w *http.ResponseWriter, stroka string) (*[]models.Car, bool) {
+
+	db := database.GetConnection()
 
 	rows, _ := db.Query(stroka)
 	defer rows.Close()
@@ -107,19 +147,18 @@ func showFromDB(db *sql.DB, w *http.ResponseWriter, stroka string) {
 		if err != nil {
 			log.Error("database show data error")
 			log.Debug("errored query when show data: " + stroka)
-
-			continue
+			models.BadServerResponse(w)
+			return &cars, false
 		}
 		car.Owner = own
 		cars = append(cars, car)
 	}
 
-	json.NewEncoder(*w).Encode(cars)
-
-}
-
-func CheckError(err error) {
-	if err != nil {
-		panic(err)
+	if len(cars) == 0 {
+		log.Debug("nothing to show")
+		models.BadClientResponse404(w)
+		return &cars, false
 	}
+
+	return &cars, true
 }

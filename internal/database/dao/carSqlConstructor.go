@@ -5,18 +5,7 @@ import (
 	"strconv"
 )
 
-// запрос для добавления машины
-func queryCarInsert(id string) string {
-	var stroka string = ""
-	return stroka
-}
-
-// запрос для добавления владельца
-func queryPersonInsert(id string) string {
-	var stroka string = ""
-	return stroka
-}
-
+// конструктор для создания where части запроса
 func constructWhere(current models.Car) string {
 
 	var result string = "where "
@@ -49,6 +38,7 @@ func constructWhere(current models.Car) string {
 	return newRes
 }
 
+// конструктор для создания set части запроса машин
 func constructSetCar(current *models.Car) string {
 
 	var result string = "SET "
@@ -71,6 +61,7 @@ func constructSetCar(current *models.Car) string {
 	return newRes
 }
 
+// конструктор для создания set части запроса людей
 func constructSetPeople(current *models.Car) string {
 
 	var result string = "SET "
@@ -87,6 +78,7 @@ func constructSetPeople(current *models.Car) string {
 	return newRes
 }
 
+// конструктор show
 func conStringShowSpec(car *models.Car, limit string, offset string, sort string) string {
 
 	var stroka string = "SELECT car.id,regnum,mark,model,year,people.id,name,surname,patronymic FROM car left join people on car.owner = people.id "
@@ -112,6 +104,7 @@ func conStringShowSpec(car *models.Car, limit string, offset string, sort string
 	return newRes
 }
 
+// конструктор update car
 func conStringUpdateCar(car *models.Car) string {
 
 	if car.Mark == "" && car.Model == "" && car.RegNum == "" && car.Year == "" {
@@ -126,6 +119,7 @@ func conStringUpdateCar(car *models.Car) string {
 	return newRes
 }
 
+// конструктор update people
 func conStringUpdatePeople(car *models.Car) string {
 
 	if car.Owner.Name == "" && car.Owner.Surname == "" && car.Owner.Patronymic == "" {
@@ -141,6 +135,7 @@ func conStringUpdatePeople(car *models.Car) string {
 	return newRes
 }
 
+// конструктор insert people
 func conStringInsertPeople(car *models.Car) string {
 
 	var stroka string = "INSERT INTO people "
@@ -171,6 +166,7 @@ func conStringInsertPeople(car *models.Car) string {
 	return stroka
 }
 
+// конструктор insert car
 func conStringInsertCar(car *models.Car) string {
 
 	var stroka string = "INSERT INTO car "

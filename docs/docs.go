@@ -147,13 +147,31 @@ const docTemplate = `{
                         "example": "2000",
                         "name": "year",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Example: Ivan",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Example: Ivanov",
+                        "name": "surname",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Example: Ivanovich",
+                        "name": "patronymic",
+                        "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "successful operation",
                         "schema": {
-                            "$ref": "#/definitions/app.carShow"
+                            "$ref": "#/definitions/server.carShow"
                         }
                     },
                     "400": {
@@ -181,7 +199,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "description": "Update cars",
-                        "name": "user",
+                        "name": "cars",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -201,55 +219,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "app.carShow": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "string",
-                    "example": "12"
-                },
-                "mark": {
-                    "type": "string",
-                    "example": "lada"
-                },
-                "model": {
-                    "type": "string",
-                    "example": "kalina"
-                },
-                "owner": {
-                    "$ref": "#/definitions/app.peopleShow"
-                },
-                "regNum": {
-                    "type": "string",
-                    "example": "x16xx150"
-                },
-                "year": {
-                    "type": "string",
-                    "example": "2000"
-                }
-            }
-        },
-        "app.peopleShow": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "string",
-                    "example": "14"
-                },
-                "name": {
-                    "type": "string",
-                    "example": "james"
-                },
-                "patronymic": {
-                    "type": "string",
-                    "example": "petrovich"
-                },
-                "surname": {
-                    "type": "string",
-                    "example": "johnson"
-                }
-            }
-        },
         "models.Car": {
             "type": "object",
             "properties": {
@@ -311,6 +280,55 @@ const docTemplate = `{
                 "surname": {
                     "type": "string",
                     "example": ""
+                }
+            }
+        },
+        "server.carShow": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "example": "12"
+                },
+                "mark": {
+                    "type": "string",
+                    "example": "lada"
+                },
+                "model": {
+                    "type": "string",
+                    "example": "kalina"
+                },
+                "owner": {
+                    "$ref": "#/definitions/server.peopleShow"
+                },
+                "regNum": {
+                    "type": "string",
+                    "example": "x16xx150"
+                },
+                "year": {
+                    "type": "string",
+                    "example": "2000"
+                }
+            }
+        },
+        "server.peopleShow": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "example": "14"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "james"
+                },
+                "patronymic": {
+                    "type": "string",
+                    "example": "petrovich"
+                },
+                "surname": {
+                    "type": "string",
+                    "example": "johnson"
                 }
             }
         }

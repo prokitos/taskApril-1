@@ -5,20 +5,20 @@ import (
 	"net/http"
 )
 
-// вывод хорошего ответа
+// структура для вывода хорошего ответа
 type GoodBasicResponse struct {
 	Description string `json:"description"        example:"description"`
 	Code        int    `json:"code"               example:"status"`
 }
 
-// вывод хорошего ответа с машиной
+// структура для вывода хорошего ответа с машиной
 type GoodAdvancedResponse struct {
 	Description string `json:"description"        example:"description"`
 	Code        int    `json:"code"               example:"status"`
 	Cars        []Car  `json:"cars"               example:"...."`
 }
 
-// вывод плохого ответа
+// структура для вывода плохого ответа
 type ErrorResponse struct {
 	Description string `json:"description"`
 	Code        int    `json:"code"`
@@ -27,17 +27,24 @@ type ErrorResponse struct {
 // ошибка на сервере
 func BadServerResponse(w *http.ResponseWriter) {
 	badResponse := ErrorResponse{
-		Description: "Bad request",
-		Code:        400,
+		Description: "Internal server error",
+		Code:        500,
 	}
 	json.NewEncoder(*w).Encode(badResponse)
 }
 
 // обишка на клиенте
-func BadClientResponse(w *http.ResponseWriter) {
+func BadClientResponse400(w *http.ResponseWriter) {
 	badResponse := ErrorResponse{
-		Description: "Internal server error",
-		Code:        500,
+		Description: "Bad request",
+		Code:        400,
+	}
+	json.NewEncoder(*w).Encode(badResponse)
+}
+func BadClientResponse404(w *http.ResponseWriter) {
+	badResponse := ErrorResponse{
+		Description: "Records not Found",
+		Code:        404,
 	}
 	json.NewEncoder(*w).Encode(badResponse)
 }

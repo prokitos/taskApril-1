@@ -2,9 +2,6 @@ package main
 
 import (
 	"module/internal/app"
-	"module/internal/database"
-
-	log "github.com/sirupsen/logrus"
 )
 
 // @title User API
@@ -18,11 +15,5 @@ import (
 // @host localhost:8888
 // @BasePath /
 func main() {
-
-	log.SetLevel(log.DebugLevel) // показывать логи debug уровня
-	log.Info("the server is starting")
-
-	go database.MigrateStart()
-
-	app.MainServer()
+	app.RunApp()
 }
