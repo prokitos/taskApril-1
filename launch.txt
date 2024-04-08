@@ -1,0 +1,2 @@
+swagger  =  http://localhost:8888/swagger/index.html
+server   =  http://localhost:8888/routes
