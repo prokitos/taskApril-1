@@ -5,8 +5,10 @@ import (
 	"io/ioutil"
 	"module/internal/database"
 	"module/internal/models"
+	"net"
 	"net/http"
 	"net/url"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -22,8 +24,25 @@ func sendRequestToGet(p_num string) models.Car {
 	params.Add("regNum", p_num)
 	baseURL.RawQuery = params.Encode()
 
-	resp, err := http.Get(baseURL.String())
+	// для контекста
+	client := http.Client{
+		Timeout: 1 * time.Second,
+	}
+
+	// ctx, cncl := context.WithTimeout(context.Background(), time.Second*3)
+	// defer cncl()
+	// req, _ := http.NewRequestWithContext(ctx, http.MethodGet, "https://google.com", nil)
+	// resp, _ := http.DefaultClient.Do(req)
+
+	resp, err := client.Get(baseURL.String())
 	if err != nil {
+
+		if err, ok := err.(net.Error); ok && err.Timeout() {
+			log.Error("timeout request !!")
+			var empty models.Car
+			return empty
+		}
+
 		log.Debug("Error connecting to external api")
 		log.Error("Error getting data from api")
 
